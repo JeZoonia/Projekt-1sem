@@ -1,7 +1,7 @@
 
 
-- [ ] Lav en plan
-- [ ] Gruppekontrakt
+- [X] Lav en plan
+- [X] Gruppekontrakt
 - [ ] Målhieraki
 - [ ] Visuel fremstilling 
 - [ ] Beskrivelse og argumentation for design principper 
