@@ -12,8 +12,6 @@ Optimering af omkostningsberegning
 ressourcebesbarelse
  - Medarbejdere skal bruge mindre tid 
 
-
-
 # Leverancer
 
 Nyt System
