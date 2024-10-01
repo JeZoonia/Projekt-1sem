@@ -2,7 +2,7 @@
 
 - [X] Lav en plan
 - [X] Gruppekontrakt
-- [ ] Målhieraki
+- [X] Målhieraki
 - [ ] Visuel fremstilling 
 - [ ] Beskrivelse og argumentation for design principper 
 - [ ] Flowchart
@@ -15,13 +15,14 @@ Vi skal lave en plan, gruppekontrakt og målhieraki.
 
 # Tirsdag 1/10/2024
 
-Visuel fremstilling, med beskrivelse og argumentation for design principper.
+Forsættelse af dagen før.
+Oprettelse af flowchart.
+begyndelse af Visuel fremstilling, med beskrivelse og argumentation for design principper.
 
 
 # Onsdag 2/10/2024
 
-Forsættelse af dagen før, og flowchart.
-
+Færdiggørelse af Visuel fremstilling, med beskrivelse og argumentation for design principper.
 
 # Torsdag 3/10/2024
 
