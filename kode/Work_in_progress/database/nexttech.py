@@ -135,6 +135,6 @@ def calculate_material_cost(machine_name, material_name, amount):
     return total_cost
 
 # Example usage
-calculate_material_cost('Ultimaker 3', 'ABS', 5)  # Example call
+calculate_material_cost('Ultimaker ', 'ABS', 5)  # Example call
 
 
