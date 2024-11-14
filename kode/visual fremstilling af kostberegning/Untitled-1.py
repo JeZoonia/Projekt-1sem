@@ -27,7 +27,7 @@ for process, machine, material, cost, unit in data:
 plt.figure(figsize=(10, 6))
 plt.barh(categories, costs, color='skyblue')
 plt.title('Omkostninger pr. Maskine og Materiale')
-plt.xlabel('Omkostning i DKK')
+plt.xlabel('Omkostning i USD')
 plt.ylabel('Processer og Maskiner')
 plt.tight_layout()
 plt.show()
