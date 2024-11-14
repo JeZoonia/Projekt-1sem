@@ -1,57 +1,36 @@
-import sqlite3
 import matplotlib.pyplot as plt
-import numpy as np
 
-def plot_cost_calculation(machine_name, material_names, max_amount=10):
-    # Åben forbindelse til databasen
-    conn = sqlite3.connect('manufacturing.db')
-    cursor = conn.cursor()
-    
-    amounts = np.linspace(1, max_amount, 10)  # Generer en række mængder fra 1 til max_amount
-    
-    plt.figure(figsize=(10, 6))
-    
-    for material_name in material_names:
-        costs = []
-        
-        # Beregn kost for hver mængde og tilføj til liste
-        for amount in amounts:
-            cursor.execute('''
-                SELECT Machines.MachineID, Materials.MaterialID, MachineMaterialCost.Cost, MachineMaterialCost.Unit
-                FROM Machines
-                JOIN MachineMaterialCost ON Machines.MachineID = MachineMaterialCost.MachineID
-                JOIN Materials ON Materials.MaterialID = MachineMaterialCost.MaterialID
-                WHERE Machines.MachineName = ? AND Materials.MaterialName = ?
-            ''', (machine_name, material_name))
-            
-            result = cursor.fetchone()
-            
-            if result:
-                machine_id, material_id, cost, unit = result
-                if unit == '$/10kg':
-                    amount /= 10
-                total_cost = cost * amount
-                costs.append(total_cost)
-            else:
-                print(f"No matching data found for {material_name} on {machine_name}.")
-                costs.append(0)  # Tilføj 0 hvis der mangler data
-        
-        # Plot data for dette materiale
-        plt.plot(amounts, costs, label=material_name)
-    
-    # Luk forbindelse til databasen
-    conn.close()
-    
-    # Plotindstillinger
-    plt.xlabel('Amount (kg or L)')
-    plt.ylabel('Total Cost ($)')
-    plt.title(f'Cost Calculation for Different Materials on {machine_name}')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+# Data for materialer og omkostninger
+data = [
+    ('FDM', 'Ultimaker 3', 'ABS', 66.66, 'kg'),
+    ('FDM', 'Fortus 360mc', 'Ultem', 343, 'unit'),
+    ('SLA', 'Form2', 'Clear Resin', 149, 'L'),
+    ('SLA', 'Form2', 'Dental Model Resin', 149, 'L'),
+    ('SLA', 'ProX 950', 'Accura Xtreme', 2800, '10kg'),
+    ('SLA', 'Form2', 'Casting Resin', 299, 'L'),
+    ('SLS', 'EOSINT P800', 'PA2200', 67.5, 'kg'),
+    ('SLS', 'EOSINT P800', 'PA12', 60, 'kg'),
+    ('SLS', 'EOSINT P800', 'Alumide', 50, 'kg'),
+    ('SLM', 'EOSm100 or 400-4', 'Ti6Al4V', 400, 'kg'),
+    ('SLM', 'EOSm100 or 400-4', 'SSL316', 30, 'kg'),
+    ('DLP', '3D Systems Figure 4', 'Problack 10', 250, 'kg')
+]
 
-# Eksempel brug
-plot_cost_calculation('Ultimaker 3', ['ABS', 'Ultem', 'Clear Resin'], max_amount=10)
+# Beregn de samlede omkostninger for hver type materiale
+categories = []
+costs = []
+for process, machine, material, cost, unit in data:
+    categories.append(f"{process} - {machine} - {material}")
+    costs.append(cost)
+
+# Visualisering
+plt.figure(figsize=(10, 6))
+plt.barh(categories, costs, color='skyblue')
+plt.title('Omkostninger pr. Maskine og Materiale')
+plt.xlabel('Omkostning i DKK')
+plt.ylabel('Processer og Maskiner')
+plt.tight_layout()
+plt.show()
 
 
 
