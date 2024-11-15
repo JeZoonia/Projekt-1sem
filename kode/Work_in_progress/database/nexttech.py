@@ -1,140 +1,152 @@
 import sqlite3
 
-# Connect to SQLite database (or create it if it doesn't exist)
+# Connect to SQLite database
 conn = sqlite3.connect('manufacturing.db')
 cursor = conn.cursor()
 
-
-cursor.execute('DROP TABLE IF EXISTS MachineMaterialCost')
-cursor.execute('DROP TABLE IF EXISTS Machines')
-cursor.execute('DROP TABLE IF EXISTS Materials')
-cursor.execute('DROP TABLE IF EXISTS Processes')
+# Drop existing tables if they exist
+cursor.execute('DROP TABLE IF EXISTS Machine')
+cursor.execute('DROP TABLE IF EXISTS BuildRate')
+cursor.execute('DROP TABLE IF EXISTS CostType')
+cursor.execute('DROP TABLE IF EXISTS MachineCost')
+cursor.execute('DROP TABLE IF EXISTS FixedCosts')
+cursor.execute('DROP TABLE IF EXISTS EmployeePay')
 
 # Create tables
 cursor.execute('''
-CREATE TABLE Processes (
-    ProcessID INTEGER PRIMARY KEY AUTOINCREMENT,
-    ProcessName TEXT NOT NULL
-)
-''')
-
-cursor.execute('''
-CREATE TABLE Machines (
+CREATE TABLE Machine (
     MachineID INTEGER PRIMARY KEY AUTOINCREMENT,
     MachineName TEXT NOT NULL,
-    ProcessID INTEGER,
-    FOREIGN KEY (ProcessID) REFERENCES Processes (ProcessID)
+    ProcessType TEXT NOT NULL
 )
 ''')
 
 cursor.execute('''
-CREATE TABLE Materials (
-    MaterialID INTEGER PRIMARY KEY AUTOINCREMENT,
-    MaterialName TEXT NOT NULL,
-    Density REAL NOT NULL
+CREATE TABLE BuildRate (
+    MachineID INTEGER PRIMARY KEY,
+    BuildRate REAL NOT NULL,
+    FOREIGN KEY (MachineID) REFERENCES Machine (MachineID)
 )
 ''')
 
 cursor.execute('''
-CREATE TABLE MachineMaterialCost (
+CREATE TABLE CostType (
+    CostTypeID INTEGER PRIMARY KEY AUTOINCREMENT,
+    CostDescription TEXT NOT NULL,
+    Unit TEXT NOT NULL
+)
+''')
+
+cursor.execute('''
+CREATE TABLE MachineCost (
     MachineID INTEGER,
-    MaterialID INTEGER,
-    Cost REAL,
-    Unit TEXT,
-    PRIMARY KEY (MachineID, MaterialID),
-    FOREIGN KEY (MachineID) REFERENCES Machines (MachineID),
-    FOREIGN KEY (MaterialID) REFERENCES Materials (MaterialID)
+    CostTypeID INTEGER,
+    CostAmount REAL,
+    PRIMARY KEY (MachineID, CostTypeID),
+    FOREIGN KEY (MachineID) REFERENCES Machine (MachineID),
+    FOREIGN KEY (CostTypeID) REFERENCES CostType (CostTypeID)
 )
 ''')
 
-# Insert data into Processes
-cursor.execute("INSERT INTO Processes (ProcessName) VALUES ('FDM')")
-cursor.execute("INSERT INTO Processes (ProcessName) VALUES ('SLA')")
-cursor.execute("INSERT INTO Processes (ProcessName) VALUES ('SLS')")
-cursor.execute("INSERT INTO Processes (ProcessName) VALUES ('SLM')")
+cursor.execute('''
+CREATE TABLE FixedCosts (
+    MachineID INTEGER PRIMARY KEY,
+    SetupCost REAL,
+    RemovalCost REAL,
+    FOREIGN KEY (MachineID) REFERENCES Machine (MachineID)
+)
+''')
 
-# Insert data into Machines
-cursor.execute("INSERT INTO Machines (MachineName, ProcessID) VALUES ('Ultimaker 3', 1)")
-cursor.execute("INSERT INTO Machines (MachineName, ProcessID) VALUES ('Fortus 360mc', 1)")
-cursor.execute("INSERT INTO Machines (MachineName, ProcessID) VALUES ('Form2', 2)")
-cursor.execute("INSERT INTO Machines (MachineName, ProcessID) VALUES ('ProX 950', 2)")
-cursor.execute("INSERT INTO Machines (MachineName, ProcessID) VALUES ('EOSINT P800', 3)")
-cursor.execute("INSERT INTO Machines (MachineName, ProcessID) VALUES ('EOSm100 or 400-4', 4)")
+cursor.execute('''
+CREATE TABLE EmployeePay (
+    MachineID INTEGER PRIMARY KEY,
+    PayPerMachineSupervised REAL NOT NULL,
+    FOREIGN KEY (MachineID) REFERENCES Machine (MachineID)
+)
+''')
 
-# Insert data into Materials
-cursor.execute("INSERT INTO Materials (MaterialName, Density) VALUES ('ABS', 1.1)")
-cursor.execute("INSERT INTO Materials (MaterialName, Density) VALUES ('Ultem', 1.27)")
-cursor.execute("INSERT INTO Materials (MaterialName, Density) VALUES ('Clear Resin', 1.18)")
-cursor.execute("INSERT INTO Materials (MaterialName, Density) VALUES ('Dental Model Resin', 1.18)")
-cursor.execute("INSERT INTO Materials (MaterialName, Density) VALUES ('Accura Xtreme', 1.18)")
-cursor.execute("INSERT INTO Materials (MaterialName, Density) VALUES ('Casting Resin', 1.18)")
-cursor.execute("INSERT INTO Materials (MaterialName, Density) VALUES ('PA2200', 0.93)")
-cursor.execute("INSERT INTO Materials (MaterialName, Density) VALUES ('PA12', 1.01)")
-cursor.execute("INSERT INTO Materials (MaterialName, Density) VALUES ('Alumide', 1.36)")
-cursor.execute("INSERT INTO Materials (MaterialName, Density) VALUES ('Ti6Al4V', 4.43)")
-cursor.execute("INSERT INTO Materials (MaterialName, Density) VALUES ('SSL316', 8.00)")
+# Insert data
+# Machine data
+machines = [
+    ('Ultimaker 3', 'FDM'),
+    ('Stratasys Fortus 360mc', 'FDM'),
+    ('Form2', 'SLA'),
+    ('3D Systems ProX 950', 'SLA'),
+    ('Figure 4 - Stand Alone', 'DLP'),
+    ('Figure 4 - Modular', 'DLP'),
+    ('EOSINT P800', 'SLS'),
+    ('EOSm100', 'SLM'),
+    ('EOSm400-4', 'SLM')
+]
+cursor.executemany("INSERT INTO Machine (MachineName, ProcessType) VALUES (?, ?)", machines)
 
-# Insert data into MachineMaterialCost
-cursor.execute("INSERT INTO MachineMaterialCost (MachineID, MaterialID, Cost, Unit) VALUES (1, 1, 66.66, '$/kg')")
-cursor.execute("INSERT INTO MachineMaterialCost (MachineID, MaterialID, Cost, Unit) VALUES (2, 2, 343, 'unit')")
-cursor.execute("INSERT INTO MachineMaterialCost (MachineID, MaterialID, Cost, Unit) VALUES (3, 3, 149, '$/L')")
-cursor.execute("INSERT INTO MachineMaterialCost (MachineID, MaterialID, Cost, Unit) VALUES (3, 4, 149, '$/L')")
-cursor.execute("INSERT INTO MachineMaterialCost (MachineID, MaterialID, Cost, Unit) VALUES (4, 5, 2800, '$/10kg')")
-cursor.execute("INSERT INTO MachineMaterialCost (MachineID, MaterialID, Cost, Unit) VALUES (3, 6, 299, '$/L')")
-cursor.execute("INSERT INTO MachineMaterialCost (MachineID, MaterialID, Cost, Unit) VALUES (5, 7, 67.5, '$/kg')")
-cursor.execute("INSERT INTO MachineMaterialCost (MachineID, MaterialID, Cost, Unit) VALUES (5, 8, 60, '$/kg')")
-cursor.execute("INSERT INTO MachineMaterialCost (MachineID, MaterialID, Cost, Unit) VALUES (5, 9, 50, '$/kg')")
-cursor.execute("INSERT INTO MachineMaterialCost (MachineID, MaterialID, Cost, Unit) VALUES (6, 10, 400, '$/kg')")
-cursor.execute("INSERT INTO MachineMaterialCost (MachineID, MaterialID, Cost, Unit) VALUES (6, 11, 30, '$/kg')")
+# BuildRate data
+build_rates = [
+    (1, 29),
+    (2, 61),
+    (3, 105),
+    (4, 600),
+    (5, 569),
+    (6, 569),
+    (7, 2774),
+    (8, 5),
+    (9, 107)
+]
+cursor.executemany("INSERT INTO BuildRate (MachineID, BuildRate) VALUES (?, ?)", build_rates)
+
+# CostType data
+cost_types = [
+    ('Additional operating cost (e.g., inert gas)', '$/hr'),
+    ('Consumable cost per build (e.g., build plate)', '$'),
+    ('First-time build preparation (engineer)', '$'),
+    ('Subsequent build preparation (engineer)', '$')
+]
+cursor.executemany("INSERT INTO CostType (CostDescription, Unit) VALUES (?, ?)", cost_types)
+
+# MachineCost data
+machine_costs = [
+    (1, 2, 0.58),
+    (2, 3, 70),
+    (3, 3, 70),
+    (3, 2, 3.72),
+    (4, 3, 140),
+    (4, 2, 0.25),
+    (4, 4, 0),
+    (5, 2, 1.5),
+    (7, 3, 70),
+    (7, 2, 1),
+    (8, 2, 25),
+    (9, 2, 25)
+]
+cursor.executemany("INSERT INTO MachineCost (MachineID, CostTypeID, CostAmount) VALUES (?, ?, ?)", machine_costs)
+
+# FixedCosts data
+fixed_costs = [
+    (1, 20, 20),
+    (2, 10, 20),
+    (4, 10, 12.5),
+    (7, 25, 25),
+    (8, 37.5, 25),
+    (9, 37.5, 25)
+]
+cursor.executemany("INSERT INTO FixedCosts (MachineID, SetupCost, RemovalCost) VALUES (?, ?, ?)", fixed_costs)
+
+# EmployeePay data
+employee_pays = [
+    (1, 2),
+    (2, 2),
+    (3, 2),
+    (4, 4),
+    (5, 5),
+    (6, 5),
+    (7, 5),
+    (8, 7.5),
+    (9, 7.5)
+]
+cursor.executemany("INSERT INTO EmployeePay (MachineID, PayPerMachineSupervised) VALUES (?, ?)", employee_pays)
 
 # Commit and close connection
 conn.commit()
 conn.close()
 
 print("Database created and populated successfully!")
-
-
-
-def calculate_material_cost(machine_name, material_name, amount):
-    conn = sqlite3.connect('manufacturing.db')
-    cursor = conn.cursor()
-    
-    # Fetch MachineID and MaterialID based on names
-    cursor.execute('''
-        SELECT Machines.MachineID, Materials.MaterialID, MachineMaterialCost.Cost, MachineMaterialCost.Unit
-        FROM Machines
-        JOIN MachineMaterialCost ON Machines.MachineID = MachineMaterialCost.MachineID
-        JOIN Materials ON Materials.MaterialID = MachineMaterialCost.MaterialID
-        WHERE Machines.MachineName = ? AND Materials.MaterialName = ?
-    ''', (machine_name, material_name))
-    
-    result = cursor.fetchone()
-    
-    if not result:
-        print("No matching machine or material found.")
-        conn.close()
-        return None
-    
-    machine_id, material_id, cost, unit = result
-    
-    # Calculate total cost
-    if unit in ['$kg', '$/L', '$/unit', '$/10kg','$/kg']:
-        # Adjust amount based on unit
-        if unit == '$/10kg':
-            amount /= 10
-        
-        total_cost = cost * amount
-        print(f"The total cost for {amount} units of {material_name} on {machine_name} is ${total_cost:.2f}")
-    else:
-        print(f"Unrecognized unit: {unit}.")
-        total_cost = None
-    
-    # Close connection
-    conn.close()
-    
-    return total_cost
-
-# Example usage
-calculate_material_cost('Ultimaker 3', 'ABS', 5)  # Example call
-
-
