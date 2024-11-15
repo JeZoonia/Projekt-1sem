@@ -18,27 +18,25 @@ data = [
     ('DLP', '3D Systems Figure 4', 'Problack 10', 250, 'kg')
 ]
 
-# Konverter data til en DataFrame for nem manipulation
+# Konverter data til DataFrame for nemmere behandling
 df = pd.DataFrame(data, columns=['Process', 'Machine', 'Material', 'Cost_per_unit', 'Unit'])
 
-# Funktion til at beregne og vise samlede omkostninger baseret på brugerinput for antal printere
-def plot_total_cost(num_printers):
-    # Beregn de samlede omkostninger for hver printer/materiale baseret på antal
-    df['Total_Cost'] = df['Cost_per_unit'] * num_printers  # Opdater omkostningerne baseret på antal printere
+# Lad kunden vælge antallet af printere
+num_printers = int(input("Indtast antal printere: "))
 
-    # Visualisering
-    plt.figure(figsize=(12, 8))
-    plt.barh(df['Process'] + " - " + df['Machine'] + " - " + df['Material'] + " (" + df['Unit'] + ")", df['Total_Cost'], color='skyblue')
-    plt.title(f'Samlede Omkostninger pr. Maskine og Materiale baseret på {num_printers} Printer(e)')
-    plt.xlabel('Samlede Omkostninger i USD')
-    plt.ylabel('Processer, Maskiner og Materiale (med Enhed)')
-    plt.tight_layout()
-    plt.show()
+# Beregn samlede omkostninger ved at multiplicere kost pr. enhed med antallet af printere
+df['Total_Cost'] = df['Cost_per_unit'] * num_printers
 
-# Eksempel: Brugeren vælger antal printere
-num_printers = int(input("Indtast antal printere: "))  # Brugeren indtaster antal printere
-plot_total_cost(num_printers)
-
+# Tegn linjegraf
+plt.figure(figsize=(12, 8))
+plt.plot(df['Material'], df['Total_Cost'], marker='o', linestyle='-', color='b')
+plt.title(f'Samlede Omkostninger for {num_printers} Printere pr. Maskine og Materiale')
+plt.xlabel('Materiale')
+plt.ylabel('Samlede Omkostninger i USD')
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+plt.grid()
+plt.show()
 
 
 
