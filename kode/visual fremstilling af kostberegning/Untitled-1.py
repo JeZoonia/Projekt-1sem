@@ -1,3 +1,5 @@
+import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 # Data for materialer og omkostninger
@@ -16,21 +18,27 @@ data = [
     ('DLP', '3D Systems Figure 4', 'Problack 10', 250, 'kg')
 ]
 
-# Beregn de samlede omkostninger for hver type materiale
-categories = []
-costs = []
-for process, machine, material, cost, unit in data:
-    categories.append(f"{process} - {machine} - {material}")
-    costs.append(cost)
+# Konverter data til en DataFrame for nem manipulation
+df = pd.DataFrame(data, columns=['Process', 'Machine', 'Material', 'Cost_per_unit', 'Unit'])
 
-# Visualisering
-plt.figure(figsize=(10, 6))
-plt.barh(categories, costs, color='skyblue')
-plt.title('Omkostninger pr. Maskine og Materiale')
-plt.xlabel('Omkostning i USD')
-plt.ylabel('Processer og Maskiner')
-plt.tight_layout()
-plt.show()
+# Funktion til at beregne og vise samlede omkostninger baseret på brugerinput for antal printere
+def plot_total_cost(num_printers):
+    # Beregn de samlede omkostninger for hver printer/materiale baseret på antal
+    df['Total_Cost'] = df['Cost_per_unit'] * num_printers  # Opdater omkostningerne baseret på antal printere
+
+    # Visualisering
+    plt.figure(figsize=(12, 8))
+    plt.barh(df['Process'] + " - " + df['Machine'] + " - " + df['Material'] + " (" + df['Unit'] + ")", df['Total_Cost'], color='skyblue')
+    plt.title(f'Samlede Omkostninger pr. Maskine og Materiale baseret på {num_printers} Printer(e)')
+    plt.xlabel('Samlede Omkostninger i USD')
+    plt.ylabel('Processer, Maskiner og Materiale (med Enhed)')
+    plt.tight_layout()
+    plt.show()
+
+# Eksempel: Brugeren vælger antal printere
+num_printers = int(input("Indtast antal printere: "))  # Brugeren indtaster antal printere
+plot_total_cost(num_printers)
+
 
 
 
