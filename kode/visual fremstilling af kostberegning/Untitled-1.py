@@ -1,42 +1,121 @@
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 
-# Data for materialer og omkostninger
-data = [
-    ('FDM', 'Ultimaker 3', 'ABS', 66.66, 'kg'),
-    ('FDM', 'Fortus 360mc', 'Ultem', 343, 'unit'),
-    ('SLA', 'Form2', 'Clear Resin', 149, 'L'),
-    ('SLA', 'Form2', 'Dental Model Resin', 149, 'L'),
-    ('SLA', 'ProX 950', 'Accura Xtreme', 2800, '10kg'),
-    ('SLA', 'Form2', 'Casting Resin', 299, 'L'),
-    ('SLS', 'EOSINT P800', 'PA2200', 67.5, 'kg'),
-    ('SLS', 'EOSINT P800', 'PA12', 60, 'kg'),
-    ('SLS', 'EOSINT P800', 'Alumide', 50, 'kg'),
-    ('SLM', 'EOSm100 or 400-4', 'Ti6Al4V', 400, 'kg'),
-    ('SLM', 'EOSm100 or 400-4', 'SSL316', 30, 'kg'),
-    ('DLP', '3D Systems Figure 4', 'Problack 10', 250, 'kg')
-]
+# Table data (unchanged)
+material_data = {
+    "ABS": {"cost": 66.66, "unit": "kg", "density": 1.1, "compatible_processes": ["FDM"]},
+    "Ultem": {"cost": 343, "unit": "unit", "density": 1.27, "compatible_processes": ["FDM"]},
+    "Clear Resin": {"cost": 149, "unit": "L", "density": 1.18, "compatible_processes": ["SLA"]},
+    "Dental Model Resin": {"cost": 149, "unit": "L", "density": 1.18, "compatible_processes": ["SLA"]},
+    "Accura Xtreme": {"cost": 2800, "unit": "10kg", "density": 1.18, "compatible_processes": ["SLA"]},
+    "Casting Resin": {"cost": 299, "unit": "L", "density": 1.18, "compatible_processes": ["SLA"]},
+    "PA2200": {"cost": 67.5, "unit": "kg", "density": 0.93, "compatible_processes": ["SLS"]},
+    "PA12": {"cost": 60, "unit": "kg", "density": 1.01, "compatible_processes": ["SLS"]},
+    "Alumide": {"cost": 50, "unit": "kg", "density": 1.36, "compatible_processes": ["SLS"]},
+    "Ti6Al4V": {"cost": 400, "unit": "kg", "density": 4.43, "compatible_processes": ["SLM"]},
+    "SSL316": {"cost": 30, "unit": "kg", "density": 8, "compatible_processes": ["SLM"]},
+    "Problack 10": {"cost": 250, "unit": "kg", "density": 1.07, "compatible_processes": ["DLP"]},
+}
 
-# Konverter data til DataFrame for nemmere behandling
-df = pd.DataFrame(data, columns=['Process', 'Machine', 'Material', 'Cost_per_unit', 'Unit'])
+process_machine_data = {
+    "FDM": ["Ultimaker 3", "Fortus 360mc"],
+    "SLA": ["Form2", "ProX 950"],
+    "SLS": ["EOSINT P800"],
+    "SLM": ["EOSm100 or 400-4"],
+    "DLP": ["3D Systems Figure 4"],
+}
 
-# Lad kunden vælge antallet af printere
-num_printers = int(input("Indtast antal printere: "))
+# Function to calculate and plot costs
+def calculate_and_plot_cost(material, process, machine, num_prints, volume_cm3):
+    # Validation
+    if material not in material_data:
+        print("The selected material is not valid!")
+        return
+    if process not in material_data[material]["compatible_processes"]:
+        print("The selected process is not compatible with the material!")
+        return
+    if process not in process_machine_data or machine not in process_machine_data[process]:
+        print("The selected machine is not compatible with the process!")
+        return
 
-# Beregn samlede omkostninger ved at multiplicere kost pr. enhed med antallet af printere
-df['Total_Cost'] = df['Cost_per_unit'] * num_printers
+    # Get data
+    material_info = material_data[material]
+    cost_per_unit = material_info["cost"]
+    density = material_info["density"]
+    unit = material_info["unit"]
 
-# Tegn linjegraf
-plt.figure(figsize=(12, 8))
-plt.plot(df['Material'], df['Total_Cost'], marker='o', linestyle='-', color='b')
-plt.title(f'Samlede Omkostninger for {num_printers} Printere pr. Maskine og Materiale')
-plt.xlabel('Materiale')
-plt.ylabel('Samlede Omkostninger i USD')
-plt.xticks(rotation=45, ha='right')
-plt.tight_layout()
-plt.grid()
-plt.show()
+    # Calculate weight from volume using density (volume in cm³, density in g/cm³)
+    weight_g = (volume_cm3 * density)  # Convert cm³ to grams using density
+
+    # Calculate cost per print
+    if unit == "kg":
+        cost_per_print = (weight_g / 1000) * cost_per_unit  # Cost by weight (convert g to kg)
+    elif unit == "L":
+        cost_per_print = (volume_cm3 / 1000) * cost_per_unit  # Cost by volume in liters
+    else:
+        cost_per_print = cost_per_unit  # Flat cost for unit-based pricing
+
+    # Calculate total costs for each print
+    x = list(range(1, num_prints + 1))  # Number of prints
+    y = [cost_per_print * i for i in x]  # Total costs
+
+    # Plot graph
+    plt.figure(figsize=(10, 6))
+    plt.plot(x, y, marker='o', label=f'{material}, {machine} ({process})')
+    plt.title("Cost vs Number of Prints")
+    plt.xlabel("Number of Prints")
+    plt.ylabel("Cost (DKK)")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+
+# Main program: Interactive inputs
+if __name__ == "__main__":
+    print("Welcome to the 3D Printing Cost Estimation Program!")
+
+    # Get material
+    print("\nAvailable Materials:")
+    for material in material_data.keys():
+        print(f"- {material}")
+    material = input("Select a material: ").strip()
+
+    # Show compatible processes
+    if material in material_data:
+        compatible_processes = material_data[material]["compatible_processes"]
+        print(f"\nCompatible processes for {material}:")
+        for process in compatible_processes:
+            print(f"- {process}")
+        process = input("Select a process: ").strip()
+    else:
+        print("The material is not valid!")
+        exit()
+
+    # Show compatible machines
+    if process in compatible_processes:
+        print(f"\nCompatible machines for {process}:")
+        for machine in process_machine_data[process]:
+            print(f"- {machine}")
+        machine = input("Select a machine: ").strip()
+    else:
+        print("The process is not valid!")
+        exit()
+
+    # Get volume per print
+    try:
+        volume_cm3 = float(input("Enter the volume per print (cm³): ").strip())
+    except ValueError:
+        print("The volume must be a number!")
+        exit()
+
+    # Get number of prints
+    try:
+        num_prints = int(input("Enter the number of prints: ").strip())
+    except ValueError:
+        print("The number of prints must be a number!")
+        exit()
+
+    # Calculate and plot costs
+    calculate_and_plot_cost(material, process, machine, num_prints, volume_cm3)
 
 
 
