@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 
 # Table data (unchanged)
-material_data = {
-    "ABS": {"cost": 66.66, "unit": "kg", "density": 1.1, "compatible_processes": ["FDM"]},
+material_data = { "ABS": {"cost": 66.66, "unit": "kg", "density": 1.1, "compatible_processes": ["FDM"]},
     "Ultem": {"cost": 343, "unit": "unit", "density": 1.27, "compatible_processes": ["FDM"]},
     "Clear Resin": {"cost": 149, "unit": "L", "density": 1.18, "compatible_processes": ["SLA"]},
     "Dental Model Resin": {"cost": 149, "unit": "L", "density": 1.18, "compatible_processes": ["SLA"]},
@@ -13,16 +12,13 @@ material_data = {
     "Alumide": {"cost": 50, "unit": "kg", "density": 1.36, "compatible_processes": ["SLS"]},
     "Ti6Al4V": {"cost": 400, "unit": "kg", "density": 4.43, "compatible_processes": ["SLM"]},
     "SSL316": {"cost": 30, "unit": "kg", "density": 8, "compatible_processes": ["SLM"]},
-    "Problack 10": {"cost": 250, "unit": "kg", "density": 1.07, "compatible_processes": ["DLP"]},
-}
+    "Problack 10": {"cost": 250, "unit": "kg", "density": 1.07, "compatible_processes": ["DLP"]},}
 
-process_machine_data = {
-    "FDM": ["Ultimaker 3", "Fortus 360mc"],
+process_machine_data = {  "FDM": ["Ultimaker 3", "Fortus 360mc"],
     "SLA": ["Form2", "ProX 950"],
     "SLS": ["EOSINT P800"],
     "SLM": ["EOSm100 or 400-4"],
-    "DLP": ["3D Systems Figure 4"],
-}
+    "DLP": ["3D Systems Figure 4"],}
 
 # Function to calculate and plot costs
 def calculate_and_plot_cost(material, process, machine, num_prints, volume_cm3):
