@@ -89,6 +89,12 @@ class App(ctk.CTk):
             ctk.CTkMessageBox.show_error("Incompatibility", f"{process} is not compatible with {material}.")
             return
 
+  # Sæt vinduets størrelse og titel
+        self.title("CustomTkinter with Gray Background")
+        self.geometry("600x400")
+
+        # Sæt baggrundsfarve på hovedvinduet
+        self.configure(fg_color="gray")  # Grå baggrund
         # Calculate cost
         material_info = material_data[material]
         cost_per_unit = material_info["cost"]
