@@ -16,13 +16,16 @@ process_machine_data = {  "FDM": ["Ultimaker 3", "Fortus 360mc"],
     "SLM": ["EOSm100 or 400-4"],
     "DLP": ["3D Systems Figure 4"],}
 
+
+
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
         self.title("3D Printing Cost Estimation")
-        self.geometry("800x600")
+        self.geometry("1000x600")  # Adjusted to fit plot beside inputs
         self.grid_columnconfigure(1, weight=1)
+        self.configure(fg_color="#808080")  # Set gray background
 
         # Labels and Inputs
         self.label_material = ctk.CTkLabel(self, text="Select Material:")
@@ -53,8 +56,12 @@ class App(ctk.CTk):
         self.entry_num_prints = ctk.CTkEntry(self)
         self.entry_num_prints.grid(row=4, column=1, padx=10, pady=10, sticky="ew")
 
-        self.button_calculate = ctk.CTkButton(self, text="Calculate and Plot", command=self.calculate_and_plot)
+        self.button_calculate = ctk.CTkButton(self, text="Calculate and Plot", fg_color="green", text_color="white", command=self.calculate_and_plot)
         self.button_calculate.grid(row=5, column=0, columnspan=2, pady=20)
+
+        # Placeholder for the plot
+        self.plot_frame = ctk.CTkFrame(self, width=500, height=400)
+        self.plot_frame.grid(row=0, column=2, rowspan=6, padx=10, pady=10, sticky="nsew")
 
         # Initialize dropdowns
         self.update_process_dropdown()
@@ -89,12 +96,6 @@ class App(ctk.CTk):
             ctk.CTkMessageBox.show_error("Incompatibility", f"{process} is not compatible with {material}.")
             return
 
-  # Sæt vinduets størrelse og titel
-        self.title("CustomTkinter with Gray Background")
-        self.geometry("600x400")
-
-        # Sæt baggrundsfarve på hovedvinduet
-        self.configure(fg_color="gray")  # Grå baggrund
         # Calculate cost
         material_info = material_data[material]
         cost_per_unit = material_info["cost"]
@@ -121,18 +122,15 @@ class App(ctk.CTk):
         ax.legend()
         ax.grid()
 
-        canvas = FigureCanvasTkAgg(fig, master=self)
+        for widget in self.plot_frame.winfo_children():
+            widget.destroy()
+
+        canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
         canvas_widget = canvas.get_tk_widget()
-        canvas_widget.grid(row=6, column=0, columnspan=2, pady=20)
+        canvas_widget.pack(fill="both", expand=True)
 
 if __name__ == "__main__":
     ctk.set_appearance_mode("System")
     ctk.set_default_color_theme("blue")
     app = App()
     app.mainloop()
-
-
-
-
-
-
