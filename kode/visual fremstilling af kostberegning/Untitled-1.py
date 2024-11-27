@@ -23,47 +23,64 @@ class App(ctk.CTk):
         super().__init__()
 
         self.title("3D Printing Cost Estimation")
-        self.geometry("1000x600")  # Adjusted to fit plot beside inputs
+        self.geometry("1000x750")  # Justeret for prisramme
         self.grid_columnconfigure(1, weight=1)
-        self.configure(fg_color="#808080")  # Set gray background
+        self.configure(fg_color="#808080")  # Grå baggrund
 
-        # Labels and Inputs
-        self.label_material = ctk.CTkLabel(self, text="Select Material:")
+        # Labels og Input
+        self.label_material = ctk.CTkLabel(self, text="Vælg Materiale:")
         self.label_material.grid(row=0, column=0, padx=10, pady=10, sticky="w")
         self.material_var = ctk.StringVar(value=list(material_data.keys())[0])
-        self.dropdown_material = ctk.CTkOptionMenu(self, variable=self.material_var, values=list(material_data.keys()), command=self.update_process_dropdown)
+        self.dropdown_material = ctk.CTkOptionMenu(
+            self,
+            variable=self.material_var,
+            values=list(material_data.keys()),
+            command=self.update_process_dropdown,
+        )
         self.dropdown_material.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
 
-        self.label_process = ctk.CTkLabel(self, text="Select Process:")
+        self.label_process = ctk.CTkLabel(self, text="Vælg Proces:")
         self.label_process.grid(row=1, column=0, padx=10, pady=10, sticky="w")
         self.process_var = ctk.StringVar(value="")
         self.dropdown_process = ctk.CTkOptionMenu(self, variable=self.process_var, values=[])
         self.dropdown_process.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
 
-        self.label_machine = ctk.CTkLabel(self, text="Select Machine:")
+        self.label_machine = ctk.CTkLabel(self, text="Vælg Maskine:")
         self.label_machine.grid(row=2, column=0, padx=10, pady=10, sticky="w")
         self.machine_var = ctk.StringVar(value="")
         self.dropdown_machine = ctk.CTkOptionMenu(self, variable=self.machine_var, values=[])
         self.dropdown_machine.grid(row=2, column=1, padx=10, pady=10, sticky="ew")
 
-        self.label_volume = ctk.CTkLabel(self, text="Volume per Print (cm³):")
+        self.label_volume = ctk.CTkLabel(self, text="Volumen pr. Print (cm³):")
         self.label_volume.grid(row=3, column=0, padx=10, pady=10, sticky="w")
         self.entry_volume = ctk.CTkEntry(self)
         self.entry_volume.grid(row=3, column=1, padx=10, pady=10, sticky="ew")
 
-        self.label_num_prints = ctk.CTkLabel(self, text="Number of Prints:")
+        self.label_num_prints = ctk.CTkLabel(self, text="Antal Prints:")
         self.label_num_prints.grid(row=4, column=0, padx=10, pady=10, sticky="w")
         self.entry_num_prints = ctk.CTkEntry(self)
         self.entry_num_prints.grid(row=4, column=1, padx=10, pady=10, sticky="ew")
 
-        self.button_calculate = ctk.CTkButton(self, text="Calculate and Plot", fg_color="green", text_color="white", command=self.calculate_and_plot)
+        self.button_calculate = ctk.CTkButton(
+            self, text="Beregn og Vis", fg_color="green", text_color="white", command=self.calculate_and_plot
+        )
         self.button_calculate.grid(row=5, column=0, columnspan=2, pady=20)
 
-        # Placeholder for the plot
+        # Placeholder til grafen
         self.plot_frame = ctk.CTkFrame(self, width=500, height=400)
         self.plot_frame.grid(row=0, column=2, rowspan=6, padx=10, pady=10, sticky="nsew")
 
-        # Initialize dropdowns
+        # Prisramme
+        self.price_frame = ctk.CTkFrame(self, width=500, height=100, corner_radius=10)
+        self.price_frame.grid(row=6, column=2, padx=10, pady=10, sticky="nsew")
+
+        self.label_cost_per_unit = ctk.CTkLabel(self.price_frame, text="Pris pr. Print: - USD", font=("Arial", 14))
+        self.label_cost_per_unit.pack(pady=10)
+
+        self.label_total_cost = ctk.CTkLabel(self.price_frame, text="Total Pris: - USD", font=("Arial", 14))
+        self.label_total_cost.pack(pady=10)
+
+        # Opdater dropdowns
         self.update_process_dropdown()
 
     def update_process_dropdown(self, *args):
@@ -88,15 +105,15 @@ class App(ctk.CTk):
             volume_cm3 = float(self.entry_volume.get())
             num_prints = int(self.entry_num_prints.get())
         except ValueError:
-            ctk.CTkMessageBox.show_error("Invalid Input", "Please enter valid numbers for volume and number of prints.")
+            ctk.CTkMessageBox.show_error("Ugyldig Input", "Indtast venligst gyldige tal for volumen og antal prints.")
             return
 
-        # Validation
+        # Validering
         if process not in material_data[material]["compatible_processes"]:
-            ctk.CTkMessageBox.show_error("Incompatibility", f"{process} is not compatible with {material}.")
+            ctk.CTkMessageBox.show_error("Inkompatibilitet", f"{process} er ikke kompatibel med {material}.")
             return
 
-        # Calculate cost
+        # Beregn omkostninger
         material_info = material_data[material]
         cost_per_unit = material_info["cost"]
         density = material_info["density"]
@@ -110,15 +127,21 @@ class App(ctk.CTk):
         else:
             cost_per_print = cost_per_unit
 
+        total_cost = cost_per_print * num_prints
+
+        # Opdater prisrammen
+        self.label_cost_per_unit.configure(text=f"Pris pr. Print: {cost_per_print:.2f} USD")
+        self.label_total_cost.configure(text=f"Total Pris: {total_cost:.2f} USD")
+
+        # Plot i CustomTkinter
         x = list(range(1, num_prints + 1))
         y = [cost_per_print * i for i in x]
 
-        # Plot in CustomTkinter
         fig, ax = plt.subplots()
         ax.plot(x, y, marker='o', label=f'{material}, {machine} ({process})')
-        ax.set_title("Cost vs Number of Prints")
-        ax.set_xlabel("Number of Prints")
-        ax.set_ylabel("Cost (DKK)")
+        ax.set_title("Pris vs Antal Prints")
+        ax.set_xlabel("Antal Prints")
+        ax.set_ylabel("Pris (USD)")
         ax.legend()
         ax.grid()
 
@@ -128,6 +151,7 @@ class App(ctk.CTk):
         canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
         canvas_widget = canvas.get_tk_widget()
         canvas_widget.pack(fill="both", expand=True)
+
 
 if __name__ == "__main__":
     ctk.set_appearance_mode("System")
