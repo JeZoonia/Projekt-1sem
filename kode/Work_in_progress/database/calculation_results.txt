@@ -1,0 +1,114 @@
+Machine: Ultimaker 3, Material: ABS
+Volume: 100.0 cm³
+Material Cost for 100.0 cm³: $6.06
+Process Cost: $47.48
+Total Cost: $53.54
+
+Machine: EOSINT P800, Material: PA12
+Volume: 12043.0 cm³
+Material Cost for 12043.0 cm³: $715.43
+Process Cost: $23.21
+Total Cost: $738.63
+
+Machine: Ultimaker 3, Material: ABS
+Volume: 67.0 cm³
+Material Cost for 67.0 cm³: $4.06
+Process Cost: $45.20
+Total Cost: $49.26
+
+Machine: EOSm400-4, Material: SSL316
+Volume: 2546.0 cm³
+Material Cost for 2546.0 cm³: $9.55
+Process Cost: $239.97
+Total Cost: $249.52
+
+Machine: Form2, Material: Dental Model Resin
+Volume: 230.0 cm³
+Material Cost for 230.0 cm³: $34.27
+Process Cost: $78.10
+Total Cost: $112.37
+
+Machine: Ultimaker 3, Material: ABS
+Volume: 3445.0 cm³
+Material Cost for 3445.0 cm³: $208.77
+Process Cost: $278.17
+Total Cost: $486.93
+
+Machine: Ultimaker 3, Material: ABS
+Volume: 987.0 cm³
+Material Cost for 987.0 cm³: $59.81
+Process Cost: $108.65
+Total Cost: $168.46
+
+Machine: Ultimaker 3, Material: ABS
+Volume: 100.0 cm³
+Material Cost for 100.0 cm³: $6.06
+Process Cost: $47.48
+Total Cost: $53.54
+
+Machine: Ultimaker 3, Material: ABS
+Volume: 1000.0 cm³
+Material Cost for 1000.0 cm³: $60.60
+Process Cost: $109.55
+Total Cost: $170.15
+
+Machine: Ultimaker 3, Material: ABS
+Volume: 100.0 cm³
+Material Cost for 100.0 cm³: $6.06
+Process Cost: $47.48
+Total Cost: $53.54
+
+Machine: Ultimaker 3, Material: ABS
+Volume: 100.0 cm³
+Material Cost for 100.0 cm³: $6.06
+Process Cost: $47.48
+Total Cost: $53.54
+
+Machine: Form2, Material: Dental Model Resin
+Volume: 13.0 cm³
+Material Cost for 13.0 cm³: $1.94
+Process Cost: $73.97
+Total Cost: $75.90
+
+Machine: ProX 950, Material: Accura Xtreme
+Volume: 866.0 cm³
+Material Cost for 866.0 cm³: $205.49
+Process Cost: $168.52
+Total Cost: $374.01
+
+Machine: Ultimaker 3, Material: ABS
+Volume: 6969.0 cm³
+Material Cost for 6969.0 cm³: $422.32
+Process Cost: $521.20
+Total Cost: $943.52
+
+Machine: Ultimaker 3, Material: ABS
+Volume: 1234.0 cm³
+Material Cost for 1234.0 cm³: $74.78
+Process Cost: $125.68
+Total Cost: $200.46
+
+Machine: Ultimaker 3, Material: ABS
+Volume: 2222.0 cm³
+Material Cost for 2222.0 cm³: $134.65
+Process Cost: $193.82
+Total Cost: $328.47
+
+Machine: Ultimaker 3, Material: ABS
+Volume: 500.0 cm³
+Material Cost for 500.0 cm³: $30.30
+Process Cost: $75.06
+Total Cost: $105.36
+
+Machine: Ultimaker 3, Material: ABS
+Volume: 50.0 cm³
+Material Cost for 50.0 cm³: $3.03
+Process Cost: $44.03
+Total Cost: $47.06
+
+Machine: Ultimaker 3, Material: ABS
+Volume: 898.0 cm³
+Material Cost for 898.0 cm³: $54.42
+Process Cost: $102.51
+Total Cost: $156.93
+
