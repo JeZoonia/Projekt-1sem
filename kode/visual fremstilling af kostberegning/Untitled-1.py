@@ -22,10 +22,10 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("3D Printing Cost Estimation")
-        self.geometry("1000x750")  # Justeret for prisramme
+        self.title("nexttech calculator")
+        self.geometry("800x600")  # Justeret for prisramme
         self.grid_columnconfigure(1, weight=1)
-        self.configure(fg_color="#808080")  # Grå baggrund
+        self.configure(fg_color="#808080")  # dark baggrund
 
         # Labels og Input
         self.label_material = ctk.CTkLabel(self, text="Vælg Materiale:")
