@@ -1,18 +1,18 @@
 import sqlite3
 import customtkinter as ctk
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 from tkinter import ttk
 
 class DatabaseHandler:
-    def __init__(self, database_name):
+    def __init__(self, database_navn):
         """Initialiserer databaseforbindelsen."""
-        self.database_name = database_name
+        self.database_navn = database_navn
 
     def opret_forbindelse(self):
         """Opretter og returnerer en forbindelse til databasen."""
-        return sqlite3.connect(self.database_name)
+        return sqlite3.connect(self.database_navn)
 
-    def hent_print_history(self):
+    def hent_print_historik(self):
         """Henter print historik fra databasen."""
         query = "SELECT * FROM print_history"
         forbindelse = self.opret_forbindelse()
@@ -22,75 +22,100 @@ class DatabaseHandler:
         forbindelse.close()
         return records
 
-    def opdater_print_history(self, print_id, new_file_name, new_quantity, new_total_cost):
-        """Opdaterer print historikken."""
+    def opdater_print_historik(self, print_id, ny_mængde):
+        """Opdaterer kun mængde i print historikken."""
         query = """
         UPDATE print_history
-        SET file_name = ?, quantity = ?, total_cost = ?
-        WHERE id = ?
+        SET mængde = ?
+        WHERE PrintID = ?
         """
         forbindelse = self.opret_forbindelse()
         cursor = forbindelse.cursor()
-        cursor.execute(query, (new_file_name, new_quantity, new_total_cost, print_id))
+        cursor.execute(query, (ny_mængde, print_id))
         forbindelse.commit()
         forbindelse.close()
-
 
 class PrintHistoryApp:
     def __init__(self, root, db_handler):
         self.root = root
         self.db_handler = db_handler
-        self.root.title("Print History")
+        self.root.title("Print Historik")
         self.root.geometry("800x600")
 
         # Mørkt tema
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
 
-        # Treeview for at vise tabellen
-        self.tree = ttk.Treeview(self.root, columns=("ID", "Print Date", "File Name", "Quantity", "Material ID", "Machine ID", "Total Cost"), show="headings")
-        self.tree.heading("ID", text="ID")
-        self.tree.heading("Print Date", text="Print Date")
-        self.tree.heading("File Name", text="File Name")
-        self.tree.heading("Quantity", text="Quantity")
-        self.tree.heading("Material ID", text="Material ID")
-        self.tree.heading("Machine ID", text="Machine ID")
-        self.tree.heading("Total Cost", text="Total Cost")
-        
+        # Treeview for at vise tabellen med den rigtige rækkefølge af kolonner
+        self.tree = ttk.Treeview(self.root, columns=("PrintID", "Mængde", "Filnavn", "Print Varighed", "Print Dato", "Samlet Omkostning", "Status", "Maskine ID", "Materiale ID"), show="headings")
+        self.tree.heading("PrintID", text="PrintID")
+        self.tree.heading("Mængde", text="Mængde")
+        self.tree.heading("Filnavn", text="Filnavn")
+        self.tree.heading("Print Varighed", text="Print Varighed")
+        self.tree.heading("Print Dato", text="Print Dato")
+        self.tree.heading("Samlet Omkostning", text="Samlet Omkostning")
+        self.tree.heading("Status", text="Status")
+        self.tree.heading("Maskine ID", text="Maskine ID")
+        self.tree.heading("Materiale ID", text="Materiale ID")
+
         self.tree.pack(pady=20, padx=20, expand=True, fill="both")
 
         # Knappen til at opdatere og reprint
-        self.edit_button = ctk.CTkButton(self.root, text="Rediger", command=self.rediger_post)
-        self.edit_button.pack(pady=10)
+        self.rediger_knap = ctk.CTkButton(self.root, text="Rediger", command=self.rediger_post)
+        self.rediger_knap.pack(pady=10)
 
-        self.reprint_button = ctk.CTkButton(self.root, text="Reprint", command=self.reprint_post)
-        self.reprint_button.pack(pady=10)
+        self.annuller_knap = ctk.CTkButton(self.root, text="Annuller", command=self.annuller_redigering)
+        self.annuller_knap.pack(pady=10)
+
+        self.reprint_knap = ctk.CTkButton(self.root, text="Reprint", command=self.reprint_post)
+        self.reprint_knap.pack(pady=10)
 
         # Indlæs print-historik
         self.load_print_history()
 
     def load_print_history(self):
         """Indlæser print historik i Treeview."""
-        records = self.db_handler.hent_print_history()
+        records = self.db_handler.hent_print_historik()
+
+        # Ryd Treeview før indlæsning af nye data
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        # Tilføj hver række til Treeview med den korrekte rækkefølge af kolonner
         for record in records:
-            self.tree.insert("", "end", values=record)
+            try:
+                # Tilføj data til Treeview, men kun hvis der er nok data i record
+                self.tree.insert("", "end", values=(
+                    record[0],  # PrintID
+                    record[7],  # Mængde
+                    record[2],  # Filnavn
+                    record[3],  # Print Varighed
+                    record[4],  # Print Dato
+                    record[5],  # Samlet Omkostning
+                    record[6],  # Status
+                    record[1],  # Maskine ID
+                    record[8] if len(record) > 8 else "N/A"   # Materiale ID (hvis findes)
+                ))
+            except IndexError:
+                messagebox.showerror("Fejl", f"Datafejl ved indlæsning af post: {record}")
 
     def rediger_post(self):
-        """Rediger en post i databasen."""
+        """Rediger kun mængde i databasen."""
         try:
             selected_item = self.tree.selection()[0]  # Få den valgte række
-            print_id = int(self.tree.item(selected_item, "values")[0])  # Få ID'et for den valgte række
+            print_id = int(self.tree.item(selected_item, "values")[0])  # Få PrintID for den valgte række
 
-            # Indtast oplysninger til opdatering
-            new_file_name = input("Indtast nyt filnavn: ")
-            new_quantity = int(input("Indtast ny mængde: "))
-            new_total_cost = float(input("Indtast ny samlet omkostning: "))
-            
-            # Opdater post
-            self.db_handler.opdater_print_history(print_id, new_file_name, new_quantity, new_total_cost)
-            messagebox.showinfo("Succes", "Posten blev opdateret!")
-            self.tree.delete(selected_item)  # Fjern den gamle række
-            self.load_print_history()  # Genindlæs historikken
+            # Brug Tkinter simpledialog for at få ny mængde
+            ny_mængde = simpledialog.askinteger("Rediger mængde", "Indtast ny mængde:")
+
+            if ny_mængde is not None:  # Hvis brugeren indtaster noget
+                # Opdater mængde i databasen
+                self.db_handler.opdater_print_historik(print_id, ny_mængde)
+                messagebox.showinfo("Succes", "Mængden blev opdateret!")
+                self.load_print_history()  # Genindlæs historikken
+            else:
+                messagebox.showwarning("Fejl", "Mængden skal udfyldes!")
+
         except Exception as e:
             messagebox.showerror("Fejl", f"Noget gik galt: {e}")
 
@@ -98,13 +123,16 @@ class PrintHistoryApp:
         """Reprint en post."""
         try:
             selected_item = self.tree.selection()[0]  # Få den valgte række
-            print_id = int(self.tree.item(selected_item, "values")[0])  # Få ID'et for den valgte række
-            print("Reprint af post med ID:", print_id)
+            print_id = int(self.tree.item(selected_item, "values")[0])  # Få PrintID for den valgte række
+            print("Reprint af post med PrintID:", print_id)
             # Du kan tilføje funktionalitet til at reprint her, f.eks. sende data til printeren
-            messagebox.showinfo("Succes", f"Post med ID {print_id} blev reprintet!")
+            messagebox.showinfo("Succes", f"Post med PrintID {print_id} blev reprintet!")
         except Exception as e:
             messagebox.showerror("Fejl", f"Noget gik galt: {e}")
 
+    def annuller_redigering(self):
+        """Funktion til at annullere redigering."""
+        messagebox.showinfo("Annulleret", "Redigering blev annulleret!")
 
 # Eksempel på brug
 if __name__ == "__main__":
@@ -112,6 +140,16 @@ if __name__ == "__main__":
     database = DatabaseHandler("manufacturing.db")
     app = PrintHistoryApp(root, database)
     root.mainloop()
+
+
+
+
+
+
+
+
+
+
 
 
 
