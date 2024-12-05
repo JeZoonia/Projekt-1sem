@@ -1,47 +1,65 @@
 import sqlite3
 
-class DatabaseHandler:
-    def __init__(self, database_navn):
-        """Initialiserer databaseforbindelsen."""
-        self.database_navn = database_navn
+class PrintHistoryDatabase:
+    def __init__(self, db_name):
+        # Initialiserer forbindelsen til databasen
+        self.db_name = db_name
+        self.conn = sqlite3.connect(self.db_name)
+        self.cursor = self.conn.cursor()
 
-    def opret_forbindelse(self):
-        """Opretter og returnerer en forbindelse til databasen."""
-        return sqlite3.connect(self.database_navn)
+    def create_table(self):
+        # Sletter eksisterende tabel og opretter en ny
+        self.cursor.execute('DROP TABLE IF EXISTS PrintHistoryData')
+        self.cursor.execute('''
+        CREATE TABLE PrintHistoryData (
+            PrintNumber INTEGER PRIMARY KEY,
+            PrintDate TEXT,
+            MachineName TEXT,
+            MaterialName TEXT,
+            Volume REAL,
+            TotalCost REAL
+        )
+        ''')
+        print("Table 'PrintHistoryData' created successfully.")
 
-    def opret_print_history_tabel(self):
-        """Opretter 'print_history' tabellen med den korrekte struktur, herunder 'mængde' kolonne."""
-        opret_tabel_query = """
-        CREATE TABLE IF NOT EXISTS print_history (
-             PrintID INTEGER PRIMARY KEY AUTOINCREMENT,
-            print_dato TEXT NOT NULL,
-            filnavn TEXT NOT NULL,
-            mængde INTEGER NOT NULL,
-            materiale_id INTEGER NOT NULL,
-            maskine_id INTEGER NOT NULL,
-            samlet_omkostning REAL NOT NULL,
-            print_varighed TEXT,
-            status TEXT,
-            FOREIGN KEY (materiale_id) REFERENCES materialer(materiale_id),
-            FOREIGN KEY (maskine_id) REFERENCES maskiner(maskine_id)
-        );
-        """
-        try:
-            forbindelse = self.opret_forbindelse()
-            cursor = forbindelse.cursor()
-            cursor.execute(opret_tabel_query)
-            forbindelse.commit()
-            print("Tabellen 'print_history' blev oprettet eller opdateret succesfuldt.")
-        except Exception as e:
-            print(f"Fejl ved oprettelse af tabellen: {e}")
-        finally:
-            forbindelse.close()
+    def insert_data(self, data_to_insert):
+        # Indsætter data i databasen, hvis det ikke allerede findes
+        for record in data_to_insert:
+            self.cursor.execute('''
+            INSERT OR IGNORE INTO PrintHistoryData (PrintNumber, PrintDate, MachineName, MaterialName, Volume, TotalCost) 
+            VALUES (?, ?, ?, ?, ?, ?)
+            ''', record)
+        self.conn.commit()
+        print("Data inserted into the database.")
 
-# Eksempel på brug
-if __name__ == "__main__":
-    # Initialiser DatabaseHandler med databasenavn
-    database = DatabaseHandler("manufacturing.db")
+    def close_connection(self):
+        # Lukker forbindelsen til databasen
+        self.conn.close()
+        print("Database connection closed.")
 
-    # Opret tabellen 'print_history' med den korrekte struktur
-    database.opret_print_history_tabel()
 
+# Data, der skal indsættes
+data_to_insert = [
+    (1, '2024-12-05', 'Ultimaker 3', 'ABS', 2.0, 40.84),
+    (2, '2024-12-05', 'Ultimaker 3', 'ABS', 5.0, 453.51),
+    (3, '2024-12-05', 'ProX 950', 'Accura Xtreme', 2.0, 163.24),
+    (4, '2024-12-05', 'EOSm100', 'SSL316', 3.0, 3.01),
+    (5, '2024-12-05', 'EOSm100', 'SSL316', 3.0, 15.06),
+    (6, '2024-12-05', 'EOSm100', 'SSL316', 333.0, 1671.24),
+    (7, '2024-12-05', 'Ultimaker 3', 'ABS', 44.0, 2036.36),
+    (8, '2024-12-05', 'Ultimaker 3', 'ABS', 44.0, 2036.36),
+    (9, '2024-12-05', 'Ultimaker 3', 'ABS', 3.0, 122.91),
+    (10, '2024-12-05', 'Ultimaker 3', 'ABS', 3.0, 122.91),
+]
+
+# Opretter et PrintHistoryDatabase objekt
+db = PrintHistoryDatabase('manufacturing.db')
+
+# Opretter tabellen
+db.create_table()
+
+# Indsætter data
+db.insert_data(data_to_insert)
+
+# Lukker forbindelsen
+db.close_connection()
