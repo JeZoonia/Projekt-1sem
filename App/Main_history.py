@@ -88,17 +88,44 @@ def opret_bruger(parent, adminbrugernavn_entry, adminadgangskode_entry, choice, 
     finally:
         connection.close()
 
-
 class App(c.CTk):
     def __init__(self, db_name):
         super().__init__()
+        self.db_name = db_name 
         self.title("Nexttech Calculator")
         self.geometry("1200x800")
         c.set_appearance_mode("dark")
         c.set_default_color_theme("blue")
+
+        # Start med login-menuen
         Login_menu(self, db_name).pack(expand=True, fill="both")
 
+     
+        self.main_frame = c.CTkFrame(self)
+        self.main_frame.pack(fill="both", expand=True)
 
+        self.history_button = c.CTkButton(
+            self.main_frame, text="Historik", command=self.open_history )
+        self.history_button.pack(pady=20)
+
+    def open_history(self):
+        """Skift til historiksiden."""
+        try:
+            self.main_frame.pack_forget()
+            self.history_page = Historik(self, self.db_name)  
+            self.history_page.pack(fill="both", expand=True)
+        except Exception as e:
+            print(f"Fejl ved åbning af historik: {e}")
+
+    def show_main(self):
+        """Vis hovedmenuen igen."""
+        try:
+            if hasattr(self, "history_page"):
+                self.history_page.pack_forget()
+            self.main_frame.pack(fill="both", expand=True)
+        except Exception as e:
+            print(f"Fejl ved visning af hovedmenuen: {e}")
+ 
 
 class Login_menu(c.CTkFrame):
     def __init__(self, parent, db_name):
@@ -456,32 +483,6 @@ class GUISetup(c.CTkFrame):
 
 
 
-class MainApp(c.CTk):
-    def __init__(self):
-        super().__init__()
-        self.db_name = 'manufacturing.db'  
-        self.title("Main Menu")
-        self.geometry("600x400")
-
-        self.main_frame = c.CTkFrame(self)
-        self.main_frame.pack(fill="both", expand=True)
-
-        self.history_button = c.CTkButton(self.main_frame, text="Historik", command=self.open_history)
-        self.history_button.pack(pady=20)
-
-    def open_history(self):
-        """Switch to the history page."""
-        self.main_frame.pack_forget()
-        self.history_page = Historik(self, self.db_name) 
-        self.history_page.pack(fill="both", expand=True)
-
-    def show_main(self):
-        """Show the main menu again."""
-        self.history_page.pack_forget()  
-        self.main_frame.pack(fill="both", expand=True)  
-
-
-
 class Historik(c.CTkFrame):
     def __init__(self, parent, db_name):
         super().__init__(parent)
@@ -610,8 +611,6 @@ class Historik(c.CTkFrame):
 
         
         
-
-
     
 
 if __name__ == "__main__":
