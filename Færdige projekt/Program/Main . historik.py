@@ -308,7 +308,7 @@ class GUISetup(c.CTkFrame):
 
         self.print_count = 0
 
-        tilbage_logo = c.CTkImage(Image.open('Back-arrow.png'), size=(20,20))
+        tilbage_logo = c.CTkImage(Image.open('c:/Users/bahar/OneDrive/Desktop/Projekt/Projekt-1sem/Færdige projekt/Program/Back-arrow.png'), size=(20,20))
         tilbage_knap = c.CTkButton(self, text="" ,image= tilbage_logo, width=20, height= 20, fg_color= "transparent", command= lambda: tilbage(parent, db_name), hover_color="green")
         tilbage_knap.grid(row = 0, column = 0, sticky= "w")
 
@@ -489,7 +489,7 @@ class Historik(c.CTkFrame):
         self.db_name = db_name
 
     
-        tilbage_logo = c.CTkImage(Image.open('Back-arrow.png'), size=(20,20))
+        tilbage_logo = c.CTkImage(Image.open('c:/Users/bahar/OneDrive/Desktop/Projekt/Projekt-1sem/Færdige projekt/Program/Back-arrow.png'), size=(20,20))
         tilbage_knap = c.CTkButton(self, text="" ,image= tilbage_logo, width=20, height= 20, fg_color= "transparent", compound="left" ,command= lambda: tilbage(parent, db_name), hover_color="green")
         tilbage_knap.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
 
