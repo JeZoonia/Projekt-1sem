@@ -1,4 +1,5 @@
 from tkinter import *
+import tkinter as tk
 import customtkinter as c
 import sqlite3
 from PIL import Image, ImageTk
@@ -6,6 +7,10 @@ from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import datetime
+import tkinter.simpledialog as simpledialog
+import tkinter.ttk as ttk
+
+
 
 
 def log(parent, brugernavn_entry, adgangskode_entry, db_name):
@@ -48,11 +53,10 @@ def berenger_frem(parent, db_name):
 
 
 def historik_frem(parent, db_name):
+    print("Historik button clicked.") 
     for widget in parent.winfo_children():
-        widget.destroy()  
-    Historik(parent, db_name).pack(expand=True, fill="both")
-
-
+        widget.pack_forget() 
+    Historik(parent, db_name).pack(expand=True, fill="both")  
 
 
 def opret_bruger(parent, adminbrugernavn_entry, adminadgangskode_entry, choice, db_name):
@@ -117,7 +121,7 @@ class Login_menu(c.CTkFrame):
         login_knap = c.CTkButton(self.menuframe,text="Login",command=lambda: log(parent, self.brugernavn_entry, self.adgangskode_entry, db_name),hover_color="green")
         login_knap.grid(row=2, column=0, columnspan=2, pady=20)
 
-        logo = c.CTkImage(Image.open('c:/Users/bahar/OneDrive/Desktop/Projekt/Projekt-1sem/Færdige projekt/Program/Nexttech.png'), size=(200, 200))
+        logo = c.CTkImage(Image.open('Nexttech.png'), size=(200, 200))
         logo_label = c.CTkLabel(self, text="", image=logo)
         logo_label.pack(pady=10, anchor="n", side="bottom")
 
@@ -449,42 +453,106 @@ class GUISetup(c.CTkFrame):
         canvas.draw()
 
 
+
+class MainApp(c.CTk):
+    def __init__(self):
+        super().__init__()
+        self.db_name = 'manufacturing.db'  
+        self.title("Main Menu")
+        self.geometry("600x400")
+
+        self.main_frame = c.CTkFrame(self)
+        self.main_frame.pack(fill="both", expand=True)
+
+        self.history_button = c.CTkButton(self.main_frame, text="Historik", command=self.open_history)
+        self.history_button.pack(pady=20)
+
+    def open_history(self):
+        """Switch to the history page."""
+        self.main_frame.pack_forget()
+        self.history_page = Historik(self, self.db_name) 
+        self.history_page.pack(fill="both", expand=True)
+
+    def show_main(self):
+        """Show the main menu again."""
+        self.history_page.pack_forget()  
+        self.main_frame.pack(fill="both", expand=True)  
+
+
+
+
 class Historik(c.CTkFrame):
     def __init__(self, parent, db_name):
         super().__init__(parent)
+        self.app = parent 
+        self.db_name = db_name
 
-        self.grid_rowconfigure(1, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-
-        with open("Historik.txt", "r") as file:
-            content = file.read()
-
-        tilbage_logo = c.CTkImage(Image.open('Back-arrow.png'), size=(20,20))
-        tilbage_knap = c.CTkButton(self, text="" ,image= tilbage_logo, width=20, height= 20, fg_color= "transparent", compound="left" ,command= lambda: tilbage(parent, db_name), hover_color="green")
+       
+        tilbage_logo = c.CTkImage(Image.open('Back-arrow.png'), size=(20, 20))
+        tilbage_knap = c.CTkButton(self, text="", image=tilbage_logo, width=20, height=20, fg_color="transparent", compound="left", command=lambda: tilbage(parent, db_name), hover_color="green")
         tilbage_knap.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
 
-        text_area = c.CTkTextbox(self, wrap="word", width=60, height=20, font=("Arial", 12))
-        text_area.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+     
+        label = c.CTkLabel(self, text="Historik", font=("Arial", 24))
+        label.grid(row=0, column=1, padx=20, pady=10, sticky="n")
 
-        scrollbar = c.CTkScrollbar(self, command=text_area.yview)
-        text_area.configure(yscrollcommand=scrollbar.set)
+       
+        self.treeview = ttk.Treeview(self, height=10) 
+        self.treeview['columns'] = ('PrintNumber', 'PrintDate', 'MachineName', 'MaterialName', 'Volume', 'TotalCost')
 
-        text_area.delete(1.0, "end")  
-        text_area.insert("end", content)
+        for col in self.treeview['columns']:
+            self.treeview.heading(col, text=col)
+            self.treeview.column(col, width=100, anchor="center") 
+            
+        self.treeview.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")
 
+        self.load_history()  
+        reprint_button = c.CTkButton(self, text="Reprint", width=100, fg_color="blue", hover_color="green", command=self.reprint_history)
+        reprint_button.grid(row=2, column=1, pady=5)  
+       
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(1, weight=1) 
+
+    def go_back(self):
+        """Navigate back to the main menu."""
+        print("Navigating back to the menu...")
+        self.app.show_main()  
+
+
+    def load_history(self):
+        """Load historical data from the database and populate the Treeview."""
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute(''' 
+                SELECT PrintNumber, PrintDate, MachineName, MaterialName, Volume, TotalCost
+                FROM PrintHistoryData
+            ''')
+            history_data = cursor.fetchall()
+
+            for row in history_data:
+                self.treeview.insert('', 'end', values=row)
+
+            if not history_data:
+                print("No history data found.")
+        except sqlite3.OperationalError as e:
+            print(f"Error executing query: {e}")
+        finally:
+            conn.close()
+
+    def reprint_history(self):
+        print("Reprint functionality triggered.")
+        
+        messagebox.showinfo("Reprint", "Reprint started successfully!")
+        
         
 
-        
 
-
-
-
-
-
-
-
-
+    
 
 if __name__ == "__main__":
     app = App("manufacturing.db")
     app.mainloop()
+     
