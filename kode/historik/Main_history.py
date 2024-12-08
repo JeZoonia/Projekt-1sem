@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import datetime
 import tkinter.simpledialog as simpledialog
 import tkinter.ttk as ttk
+from tkinter import simpledialog
+
 
 
 
@@ -121,7 +123,7 @@ class Login_menu(c.CTkFrame):
         login_knap = c.CTkButton(self.menuframe,text="Login",command=lambda: log(parent, self.brugernavn_entry, self.adgangskode_entry, db_name),hover_color="green")
         login_knap.grid(row=2, column=0, columnspan=2, pady=20)
 
-        logo = c.CTkImage(Image.open('Nexttech.png'), size=(200, 200))
+        logo = c.CTkImage(Image.open('c:/Users/bahar/OneDrive/Desktop/Ny mappe/Færdige projekt/Program/Nexttech.png'), size=(200, 200))
         logo_label = c.CTkLabel(self, text="", image=logo)
         logo_label.pack(pady=10, anchor="n", side="bottom")
 
@@ -480,45 +482,57 @@ class MainApp(c.CTk):
 
 
 
-
 class Historik(c.CTkFrame):
     def __init__(self, parent, db_name):
         super().__init__(parent)
-        self.app = parent 
+        self.app = parent
         self.db_name = db_name
 
-       
-        tilbage_logo = c.CTkImage(Image.open('Back-arrow.png'), size=(20, 20))
-        tilbage_knap = c.CTkButton(self, text="", image=tilbage_logo, width=20, height=20, fg_color="transparent", compound="left", command=lambda: tilbage(parent, db_name), hover_color="green")
+    
+        tilbage_logo = c.CTkImage(Image.open('c:/Users/bahar/OneDrive/Desktop/Ny mappe/Færdige projekt/Program/Back-arrow.png'), size=(20,20))
+        tilbage_knap = c.CTkButton(self, text="" ,image= tilbage_logo, width=20, height= 20, fg_color= "transparent", compound="left" ,command= lambda: tilbage(parent, db_name), hover_color="green")
         tilbage_knap.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
 
-     
+      
         label = c.CTkLabel(self, text="Historik", font=("Arial", 24))
         label.grid(row=0, column=1, padx=20, pady=10, sticky="n")
 
        
-        self.treeview = ttk.Treeview(self, height=10) 
+        self.treeview = ttk.Treeview(self, height=10)
         self.treeview['columns'] = ('PrintNumber', 'PrintDate', 'MachineName', 'MaterialName', 'Volume', 'TotalCost')
 
         for col in self.treeview['columns']:
             self.treeview.heading(col, text=col)
-            self.treeview.column(col, width=100, anchor="center") 
-            
-        self.treeview.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")
+            self.treeview.column(col, width=70, anchor="center")  
 
-        self.load_history()  
-        reprint_button = c.CTkButton(self, text="Reprint", width=100, fg_color="blue", hover_color="green", command=self.reprint_history)
-        reprint_button.grid(row=2, column=1, pady=5)  
+        self.treeview.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+
+      
+        self.load_history()
+
        
+        button_frame = c.CTkFrame(self)
+        button_frame.grid(row=1, column=2, padx=10, pady=10, sticky="ns")
+
+        
+        reprint_button = c.CTkButton(button_frame, text="Reprint", width=100, fg_color="blue", hover_color="green", command=self.reprint_history)
+        reprint_button.grid(row=0, column=0, pady=5)
+
+       
+        edit_button = c.CTkButton(button_frame, text="Edit", width=100, fg_color="blue", hover_color="green", command=self.edit_row)
+        edit_button.grid(row=1, column=0, pady=5)
+
+        
+        cancel_button = c.CTkButton(button_frame, text="Cancel", width=100, fg_color="blue", hover_color="green", command=self.cancel_edit)
+        cancel_button.grid(row=2, column=0, pady=5)
+
+      
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(1, weight=1) 
+        self.grid_columnconfigure(2, weight=0)  
+        self.grid_rowconfigure(1, weight=1)
 
-    def go_back(self):
-        """Navigate back to the main menu."""
-        print("Navigating back to the menu...")
-        self.app.show_main()  
-
+        self.selected_item = None  
 
     def load_history(self):
         """Load historical data from the database and populate the Treeview."""
@@ -543,9 +557,57 @@ class Historik(c.CTkFrame):
             conn.close()
 
     def reprint_history(self):
+        """Trigger reprint functionality."""
         print("Reprint functionality triggered.")
-        
         messagebox.showinfo("Reprint", "Reprint started successfully!")
+
+    def edit_row(self):
+        """Edit selected row."""
+        selected_item = self.treeview.selection()
+        if selected_item:
+            self.selected_item = selected_item[0]
+            current_values = self.treeview.item(self.selected_item, "values")
+            print_number, print_date, machine_name, material_name, volume, total_cost = current_values
+
+            new_volume = simpledialog.askfloat("Edit Volume", "Enter new Volume:", initialvalue=volume)
+
+            if new_volume is not None:
+                
+                self.treeview.item(self.selected_item, values=(print_number, print_date, machine_name, material_name, new_volume, total_cost))
+                self.update_database(print_number, new_volume)
+
+        else:
+            messagebox.showwarning("No Selection", "Please select a row to edit.")
+
+    def cancel_edit(self):
+        """Cancel editing and revert any changes."""
+        if self.selected_item:
+            current_values = self.treeview.item(self.selected_item, "values")
+            print_number, print_date, machine_name, material_name, volume, total_cost = current_values
+            
+            self.treeview.item(self.selected_item, values=(print_number, print_date, machine_name, material_name, volume, total_cost))
+            self.selected_item = None
+        else:
+            messagebox.showwarning("No Edit", "No edits to cancel.")
+
+    def update_database(self, print_number, new_volume):
+        """Update the database with the new volume value."""
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute('''
+                UPDATE PrintHistoryData
+                SET Volume = ?
+                WHERE PrintNumber = ?
+            ''', (new_volume, print_number))
+            conn.commit()
+            print(f"Volume updated for PrintNumber {print_number}.")
+        except sqlite3.OperationalError as e:
+            print(f"Error updating database: {e}")
+        finally:
+            conn.close()
+
         
         
 
