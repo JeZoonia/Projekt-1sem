@@ -1,0 +1,62 @@
+Date: 2024-12-05 
+Print nr 1 
+Machine: Ultimaker 3, Material: ABS
+Volume: 2.0 cm³
+Total Cost: 40.84 USD 
+
+Date: 2024-12-05 
+Print nr 2 
+Machine: Ultimaker 3, Material: ABS
+Volume: 5.0 cm³
+Total Cost: 453.51 USD 
+
+Print nr 1 
+Machine: ProX 950, Material: Accura Xtreme
+Volume: 2.0 cm³
+Total Cost: 163.24 USD 
+
+Print nr 2 
+Machine: EOSm100, Material: SSL316
+Volume: 3.0 cm³
+Total Cost: 3.01 USD 
+
+Print nr 3 
+Machine: EOSm100, Material: SSL316
+Volume: 3.0 cm³
+Total Cost: 15.06 USD 
+
+Print nr 4 
+Machine: EOSm100, Material: SSL316
+Volume: 333.0 cm³
+Total Cost: 1671.24 USD 
+
+Print nr 1 
+Machine: Ultimaker 3, Material: ABS
+Volume: 44.0 cm³
+Total Cost: 2036.36 USD 
+
+Print nr 2 
+Machine: Ultimaker 3, Material: ABS
+Volume: 44.0 cm³
+Total Cost: 2036.36 USD 
+
+Print nr 3 
+Machine: Ultimaker 3, Material: ABS
+Volume: 3.0 cm³
+Total Cost: 122.91 USD 
+
+Print nr 4 
+Machine: Ultimaker 3, Material: ABS
+Volume: 3.0 cm³
+Total Cost: 122.91 USD 
+
+Print nr 1 
+Machine: Ultimaker 3, Material: ABS
+Volume: 22.0 cm³
+Total Cost: 86.86 USD 
+
+Print nr 1 
+Machine: Ultimaker 3, Material: ABS
+Volume: 2.0 cm³
+Total Cost: 81.68 USD 
+
