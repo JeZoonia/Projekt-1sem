@@ -481,9 +481,6 @@ class Historik(c.CTkFrame):
 
         self.treeview.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
 
-      
-        self.load_history()
-
        
         button_frame = c.CTkFrame(self)
         button_frame.grid(row=1, column=2, padx=10, pady=10, sticky="ns")
