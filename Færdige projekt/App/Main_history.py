@@ -123,7 +123,7 @@ class Login_menu(c.CTkFrame):
         login_knap = c.CTkButton(self.menuframe,text="Login",command=lambda: log(parent, self.brugernavn_entry, self.adgangskode_entry, db_name),hover_color="green")
         login_knap.grid(row=2, column=0, columnspan=2, pady=20)
 
-        logo = c.CTkImage(Image.open('Nexttech.png'), size=(200, 200))
+        logo = c.CTkImage(Image.open('c:/Users/bahar/OneDrive/Desktop/projekt/Projekt-1sem/Færdige projekt/App/Nexttech.png'), size=(200, 200))
         logo_label = c.CTkLabel(self, text="", image=logo)
         logo_label.pack(pady=10, anchor="n", side="bottom")
 
@@ -159,7 +159,7 @@ class AdminMenu(c.CTkFrame):
         self.opretframe = c.CTkFrame(self)  
         self.opretframe.pack(fill = "both", expand = "true")
 
-        tilbage_logo = c.CTkImage(Image.open('Back-arrow.png'), size=(20,20))
+        tilbage_logo = c.CTkImage(Image.open('c:/Users/bahar/OneDrive/Desktop/projekt/Projekt-1sem/Færdige projekt/App/Back-arrow.png'), size=(20,20))
         tilbage_knap = c.CTkButton(self.opretframe, text="" ,image= tilbage_logo, width=20, height= 20, fg_color= "transparent", command= lambda: tilbage(parent, db_name), hover_color="green")
         tilbage_knap.grid(row = 0, column = 0, sticky= "w")
 
@@ -463,7 +463,7 @@ class Historik(c.CTkFrame):
         self.db_name = db_name
 
     
-        tilbage_logo = c.CTkImage(Image.open('Back-arrow.png'), size=(20, 20))
+        tilbage_logo = c.CTkImage(Image.open('c:/Users/bahar/OneDrive/Desktop/projekt/Projekt-1sem/Færdige projekt/App/Back-arrow.png'), size=(20, 20))
         tilbage_knap = c.CTkButton(self, text="" ,image= tilbage_logo, width=20, height= 20, fg_color= "transparent", compound="left" ,command= lambda: tilbage(parent, db_name), hover_color="green")
         tilbage_knap.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
 
@@ -481,7 +481,9 @@ class Historik(c.CTkFrame):
 
         self.treeview.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
 
-       
+        self.load_history()
+
+        
         button_frame = c.CTkFrame(self)
         button_frame.grid(row=1, column=2, padx=10, pady=10, sticky="ns")
 
@@ -581,9 +583,7 @@ class Historik(c.CTkFrame):
 
         
         
-
-
-    
+   
 
 if __name__ == "__main__":
     app = App("manufacturing.db")
